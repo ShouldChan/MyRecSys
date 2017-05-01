@@ -51,11 +51,11 @@ def MillerCoor(lat, lon):
 
 
 # calculate Euclidean distance
-def distance(vector1, vector2):
-    dist1 = np.sqrt(np.sum(np.square(vector1 - vector2)))   #计算欧式距离的第一种写法
-    # dist2 = np.linalg.norm(vector1 - vector2)   #计算欧式距离的第二种写法
-    return dist1
-    # return sqrt(sum(power(vector2 - vector1, 2)))  #作者源码的写法
+# def distance(vector1, vector2):
+#     dist1 = np.sqrt(np.sum(np.square(vector1 - vector2)))   #计算欧式距离的第一种写法
+#     # dist2 = np.linalg.norm(vector1 - vector2)   #计算欧式距离的第二种写法
+#     return dist1
+#     # return sqrt(sum(power(vector2 - vector1, 2)))  #作者源码的写法
 
 # test distance ok...
 # v1=[1,2]
