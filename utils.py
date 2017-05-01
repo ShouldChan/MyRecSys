@@ -50,6 +50,7 @@ def MillerCoor(lat, lon):
     return x, y
 
 
+
 # calculate Euclidean distance
 # def distance(vector1, vector2):
 #     dist1 = np.sqrt(np.sum(np.square(vector1 - vector2)))   #计算欧式距离的第一种写法
