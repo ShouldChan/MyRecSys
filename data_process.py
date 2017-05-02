@@ -32,10 +32,13 @@ txtwrite = open(house_dir + 'houseinfo.txt', 'wb')
 with open(house_dir + 'listings.csv', 'rb') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
-        id, h_id, h_lat, h_lon, h_price, h_value = row['id'], row['host_id'], row['latitude'], row['longitude'], row[
-            'price'], row['review_scores_value']
+        id, h_id, h_lat, h_lon, h_price, h_value, h_amenities = row['id'], row['host_id'], row['latitude'], row[
+            'longitude'], row[
+                                                                    'price'], row['review_scores_value'], row[
+                                                                    'amenities']
         h_price = h_price.replace('$', '', 1)
         # print id, h_id, h_lat, h_lon, h_price, h_value
         if h_value != '':
-            txtwrite.write(id + '\t' + h_id + '\t' + h_lat + '\t' + h_lon + '\t' + h_price + '\t' + h_value + '\n')
+            txtwrite.write(
+                id + '\t' + h_id + '\t' + h_lat + '\t' + h_lon + '\t' + h_price + '\t' + h_value + '\t' + h_amenities + '\n')
 txtwrite.close()
