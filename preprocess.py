@@ -6,6 +6,17 @@ user_dic = {}
 user_set = set()
 poi_dic = {}
 poi_set = set()
+# 加入poi的地理位置
+poi_info = {}
+
+with open('./spot_location.txt') as fread:
+	lines = fread.readlines()
+	for line in lines:
+		temp = line.strip().split(' ')
+		poiid, lat, lon = temp[0], temp[1], temp[2]
+		poi_info[poiid] = [float(lat), float(lon)]
+	print poi_info
+
 
 with open('./data.txt','rb') as fread:
 	lines = fread.readlines()
