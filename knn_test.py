@@ -36,13 +36,17 @@ def knn(inX,dataset,labels, k):
         voteIlabel = labels[sortedDistIndices[i]]
         print sortedDistIndices[i]
         print voteIlabel
-        print classCount.get(voteIlabel,0)
+        # 获取频数字典中该标签出现的个数
+        # dict.get(key,0)指定返回键值，如果在字典里没有则返回0
         classCount[voteIlabel] = classCount.get(voteIlabel,0)+1
         print classCount
-
+    # 对classcount进行从大到小排序
     sortedClassCount = sorted(classCount.iteritems(), \
         key=operator.itemgetter(1), reverse=True)
+    print sortedClassCount[0] #{'B':2}
+    print sortedClassCount[0][0]  #B
     return sortedClassCount[0][0]
+
 
 def create_dataset():
     group = np.array([[1.0,1.1],[1.0,1.0],[0,0],[0,0.1]])
