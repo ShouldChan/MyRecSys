@@ -204,21 +204,34 @@ def read_matrix(train_data, visits, locations):
 
     DG = []
     t = time.time()
-    for i in range(len(train_data) - 1):
-        u, lc, li, time_irrelevance = train_data[i]
-        u2, lc2, li2, time_irrelevance2 = train_data[i + 1]
-        print i
-        if u != u2:
-            lj = li
-            for lj in range(poi_num):
-                #print lj
-                # recommend poi (unvisited and visited)
-                if locations.get(lj) != None:
-                    w = (1.0 + util.dist(locations[lc], locations[lj])) ** dis_coef
-                    DP = np.linalg.norm(UP[u] - LP[lj]) ** 2
-                    DS = np.linalg.norm(LS[lc] - LS[lj]) ** 2
-                    distance = w * (alpha * DP + (1 - alpha) * DS)
-                    DG.append([u, lj, distance])
+    count = 0
+    for (u,lc,li) in visits:
+        count += 1
+        print count
+        for lj in range(poi_num):
+            # lc = random.randint(0, poi_num) 
+            if locations.get(lj) != None:
+                w = (1.0 + util.dist(locations[lc], locations[lj])) ** dis_coef
+                DP = np.linalg.norm(UP[u] - LP[lj]) ** 2
+                DS = np.linalg.norm(LS[lc] - LS[lj]) ** 2
+                distance = w * (alpha * DP + (1 - alpha) * DS)
+                DG.append([u, lj, distance])
+
+    # for i in range(len(train_data) - 1):
+    #     u, lc, li, time_irrelevance = train_data[i]
+    #     u2, lc2, li2, time_irrelevance2 = train_data[i + 1]
+    #     print i
+    #     if u != u2:
+    #         lj = li
+    #         for lj in range(poi_num):
+    #             #print lj
+    #             # recommend poi (unvisited and visited)
+    #             if locations.get(lj) != None:
+    #                 w = (1.0 + util.dist(locations[lc], locations[lj])) ** dis_coef
+    #                 DP = np.linalg.norm(UP[u] - LP[lj]) ** 2
+    #                 DS = np.linalg.norm(LS[lc] - LS[lj]) ** 2
+    #                 distance = w * (alpha * DP + (1 - alpha) * DS)
+    #                 DG.append([u, lj, distance])
     DG.sort(key=operator.itemgetter(0, 2))
     
     # 只取每个用户距离得分最小的前三个poi点
@@ -264,6 +277,7 @@ if __name__ == '__main__':
     # print "learning over...", time.time()-t
 
     # step3------calculate the distance
+    print len(visits)
     read_matrix(train_data, visits, locations)
     print "make distance_list ok...Elapsed", time.time() - t
 
