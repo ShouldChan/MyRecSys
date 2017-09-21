@@ -205,17 +205,20 @@ def read_matrix(train_data, visits, locations):
     DG = []
     t = time.time()
     count = 0
+    count_in = 0
     for (u,lc,li) in visits:
         count += 1
         print count
-        for lj in range(poi_num):
-            # lc = random.randint(0, poi_num) 
+        while count_in <= 10000:
+            lj = random.randint(0, poi_num)
             if locations.get(lj) != None:
                 w = (1.0 + util.dist(locations[lc], locations[lj])) ** dis_coef
                 DP = np.linalg.norm(UP[u] - LP[lj]) ** 2
                 DS = np.linalg.norm(LS[lc] - LS[lj]) ** 2
                 distance = w * (alpha * DP + (1 - alpha) * DS)
                 DG.append([u, lj, distance])
+            count_in += 1
+        count_in = 0
 
     # for i in range(len(train_data) - 1):
     #     u, lc, li, time_irrelevance = train_data[i]
