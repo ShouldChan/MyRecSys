@@ -236,6 +236,16 @@ def make_result(user_dict, loc_dict, user_list):
             top_dict[u_index] = [top1,top2,top3]
     # print top_dict
     count = 0
+    knn_dict = {}
+    with open('./result_knn.csv','rb') as fread:
+        lines = fread.readlines()
+        for line in lines:
+            temp = line.strip().split(',')
+            orderid,hash_top1,hash_top2,hash_top3= \
+            temp[0],temp[1],temp[2],temp[3]
+            knn_dict[orderid] = [hash_top1,hash_top2,hash_top3]
+    print 'read_knn_coldstart over...'
+
     with open('./test.csv','rb') as fread:
         lines = fread.readlines()
         for line in lines:
@@ -244,7 +254,8 @@ def make_result(user_dict, loc_dict, user_list):
             if userid not in user_list:
                 print count
                 count += 1
-                fwrite.write(str(orderid)+','+'wx4f9mt'+','+'wx4fzre'+','+'wx4eq1t'+'\n')
+                hash_top1,hash_top2,hash_top3=knn_dict[orderid]
+                fwrite.write(str(orderid)+','+str(hash_top1)+','+str(hash_top2)+','+str(hash_top3)+'\n')
                 continue
             u_index = str(user_dict[userid])
             top1,top2,top3 = top_dict[u_index]
@@ -274,3 +285,4 @@ if __name__ == '__main__':
 
     # step4-------make the result.csv
     make_result(user_dict, loc_dict, user_list)
+    print 'maker result over..'
