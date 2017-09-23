@@ -6,6 +6,7 @@ import datetime
 import random
 import time
 from util import Util
+import operator
 
 time_format = '%Y-%m-%d %H:%M:%S'
 poi_num = 110528
@@ -23,6 +24,7 @@ model_dir = './'
 def read_training_data():
     train_data = []
     user_dict = {}
+    user_list = []
     loc_dict = {}
     visits = set()
     # 给地点进行编号
@@ -30,15 +32,16 @@ def read_training_data():
         lines = fread.readlines()
         for line in lines:
             temp = line.strip().split('\t')
-            locid,hash_locid = int(temp[0]),str(temp[1])
+            locid,hash_locid = str(temp[0]),str(temp[1])
             loc_dict[hash_locid] = locid
     # 给用户id进行编号
     with open('./userid.txt','rb') as fread:
         lines = fread.readlines()
         for line in lines:
             temp = line.strip().split('\t')
-            u, userid = int(temp[0]),str(temp[1])
+            u, userid = str(temp[0]),str(temp[1])
             user_dict[userid] = u
+            user_list.append(userid)
     # 读取训练数据集
     with open('./train_next.csv','rb') as fread:
         lines = fread.readlines()
@@ -52,7 +55,7 @@ def read_training_data():
             train_data.append([u, lc, li, time_irrelevance])
             visits.add((u, lc, li))
     print 'read train ok...'
-    return train_data, visits
+    return train_data, visits, user_dict, loc_dict, user_list
 
 
 def get_locations():
@@ -145,58 +148,6 @@ def learning(train_data, visits, locations, cont):
         np.save(model_dir + "LS", LS)
         print "Model saved..."
 
-'''
-def learning(train_data, visits, locations):
-    UP = np.random.normal(0.0, 0.01, (user_num, K))
-    LS = np.random.normal(0.0, 0.01, (poi_num, K))
-    LP = np.random.normal(0.0, 0.01, (poi_num, K))
-    error_cnt = 0
-    count = 0
-    try:
-        for iteration in range(max_iters):
-            log_likelihood = 0.0
-            print iteration
-            t = time.time()
-            for each_data in train_data:
-                try:
-                    print count
-                    count += 1
-                    u,lc,li = each_data
-                    lj = li
-                    while (u, lc, lj) in visits or locations.get(lj) == None:
-                        lj = random.randint(0, poi_num)
-
-                    wci = (1.0 + util.dist(locations[lc], locations[li])) ** dis_coef
-                    wcj = (1.0 + util.dist(locations[lc], locations[lj])) ** dis_coef
-                    Di = wci * (alpha * np.linalg.norm(UP[u] - LP[li]) ** 2 + (1 - alpha) * np.linalg.norm(LS[lc] - LS[li])**2)
-                    Dj = wcj * (alpha * np.linalg.norm(UP[u] - LP[lj]) ** 2 + (1 - alpha) * np.linalg.norm(LS[lc] - LS[lj])**2)
-                    z = Dj - Di
-
-                    log_likelihood += np.log(util.sigmoid(z))
-
-                    UP[u] += gamma * ((1 - util.sigmoid(z)) *
-                                      2 * alpha * ((wcj - wci) * UP[u] + (wci * LP[li] - wcj * LP[lj])) -
-                                      2 * lamda * UP[u])
-                    LP[li] += gamma * ((1 - util.sigmoid(z)) * 2 * alpha * wci * (UP[u] - LP[li]) - 2 * lamda * LP[li])
-                    LP[lj] += gamma * (- (1 - util.sigmoid(z)) * 2 * alpha * wcj * (UP[u] - LP[lj]) - 2 * lamda * LP[lj])
-                    LS[lc] += gamma * ((1 - util.sigmoid(z)) *
-                                       2 * (1 - alpha) * ((wcj - wci) * LS[lc] + (wci * LS[li] - wcj * LS[lj])) -
-                                       2 * lamda * LS[lc])
-                    LS[li] += gamma * ((1 - util.sigmoid(z)) * 2 * (1 - alpha) * wci * (LS[lc] - LS[li]) - 2 * lamda * LS[li])
-                    LS[lj] += gamma * (- (1 - util.sigmoid(z)) * 2 * (1 - alpha) * wcj * (LS[lc] - LS[lj]) - 2 * lamda * LS[lj])
-                except OverflowError:
-                    pass
-                    print "Calculation failed. #%d" % error_cnt
-            print "Iter: %d    likelihood: %f    elapsed: %fs" % (iteration, log_likelihood, time.time() - t)
-
-    finally:
-        np.save("./UP.npy", UP)
-        np.save("./LP.npy", LP)
-        np.save("./LS.npy", LS)
-        print "Model saved..."
-'''
-
-
 def read_matrix(train_data, visits, locations):
     UP = np.load("./UP.npy")
     LS = np.load("./LS.npy")
@@ -209,7 +160,7 @@ def read_matrix(train_data, visits, locations):
     for (u,lc,li) in visits:
         count += 1
         print count
-        while count_in <= 10000:
+        while count_in <= 100:
             lj = random.randint(0, poi_num)
             if locations.get(lj) != None:
                 w = (1.0 + util.dist(locations[lc], locations[lj])) ** dis_coef
@@ -255,24 +206,61 @@ def read_matrix(train_data, visits, locations):
             temp.append(DG[i+3])
         i = i+4
 
-    with open("./dist_list_prme.txt", 'w') as n:
-        for i in range(len(temp),3):
+    with open('./dist_list_prme.txt', 'wb') as fwrite:
+        for i in range(0,len(temp),3):
             u_1, lj_1, distance_1 = temp[i]
             u_2, lj_2, distance_2 = temp[i+1]
             u_3, lj_3, distance_3 = temp[i+2]
-            n.write(str(u)+"\t"+str(lj_1)+"\t"+str(lj_2)+'\t'+str(lj_3)+"\n")
+            fwrite.write(str(u_1)+'\t'+str(lj_1)+'\t'+str(lj_2)+'\t'+str(lj_3)+'\n')
 
         # for [u, lj, distance] in DG:
         #     n.write(str(u) + "\t" + str(lj) + "\t" + str(distance) + "\n")
     print "read_matrix elapsed: %f" % (time.time() - t)
 
+def make_result(user_dict, loc_dict, user_list):
+    fwrite = open('./result_0922.csv','wb')
+    top_dict = {}
+    # print user_dict[467987]
+    print user_dict['467987']
+    loc_dict_id2hash = dict((value,key) for key,value in loc_dict.iteritems())
+    # user_dict_index2id = dict((value,key) for key,value in user_dict.iteritems())
+    # print user_dict_index2id[31737]
+    with open('./dist_list_prme.txt','rb') as fread:
+        lines = fread.readlines()
+        for line in lines:
+            temp = line.strip().split('\t')
+            u_index, top1,top2,top3 = temp[0],temp[1],temp[2],temp[3]
+            # print uid
+            # userrid = user_dict_index2id[uid]
+            # print userrid
+            top_dict[u_index] = [top1,top2,top3]
+    # print top_dict
+    count = 0
+    with open('./test.csv','rb') as fread:
+        lines = fread.readlines()
+        for line in lines:
+            temp = line.strip().split(',')
+            orderid,userid = str(temp[0]),str(temp[1])
+            if userid not in user_list:
+                print count
+                count += 1
+                fwrite.write(str(orderid)+','+'wx4f9mt'+','+'wx4fzre'+','+'wx4eq1t'+'\n')
+                continue
+            u_index = str(user_dict[userid])
+            top1,top2,top3 = top_dict[u_index]
+
+            # print type(top1)
+            # print type(loc_dict[top1])
+            hash_top1,hash_top2,hash_top3 = loc_dict_id2hash[top1],loc_dict_id2hash[top2],loc_dict_id2hash[top3]
+            fwrite.write(str(orderid)+','+str(hash_top1)+','+str(hash_top2)+','+str(hash_top3)+'\n')
+    fwrite.close()
 
 if __name__ == '__main__':
     t = time.time()
     util = Util()
     # step1------read dataset
     locations = get_locations()
-    train_data, visits = read_training_data()
+    train_data, visits, user_dict, loc_dict, user_list = read_training_data()
     print "Data Loaded... Elapsed", time.time() - t
 
     # step2------learning prme-g
@@ -280,9 +268,9 @@ if __name__ == '__main__':
     # print "learning over...", time.time()-t
 
     # step3------calculate the distance
-    print len(visits)
-    read_matrix(train_data, visits, locations)
-    print "make distance_list ok...Elapsed", time.time() - t
+    # print len(visits)
+    # read_matrix(train_data, visits, locations)
+    # print "make distance_list ok...Elapsed", time.time() - t
 
-    # step4-------select top k and make the result.csv
-
+    # step4-------make the result.csv
+    make_result(user_dict, loc_dict, user_list)
