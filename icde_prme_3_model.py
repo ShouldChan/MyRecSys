@@ -42,8 +42,8 @@ file_suffix = ".txt"
 
 time_format = "%Y-%m-%d %H:%M:%S"
 
-user_num = 2364
-poi_num = 6986
+user_num = 762
+poi_num = 2058
 
 K = 60            # latent dimensionality /  the number of dimensions
 tau = 3600 * 12    # time difference threshold
@@ -76,16 +76,12 @@ def read_training_data():
     for eachline in train_data_file:
         raw_data = eachline.strip().split('\t')
         #print raw_data[0],"\t",raw_data[1],"\t",raw_data[4],"\t",raw_data[5]
-        u, lc, li = int(raw_data[0]) - 1, int(raw_data[1]) - 1, int(raw_data[5]) - 1
+        u, lc, li = int(raw_data[0]), int(raw_data[1]), int(raw_data[5])
 
-        # current_time = util.date2time(raw_data[2], time_format)
-        # current_time = float(raw_data[2])
-        # print raw_data[2]
-        # current_time = float(raw_data[2])
-        # next_time = util.date2time(raw_data[8], time_format)
-        # next_time = float(raw_data[6])
-        # time_irrelevance = (next_time - current_time) > tau
-        time_irrelevance = True
+        current_time = util.date2time(raw_data[4], time_format)
+        next_time = util.date2time(raw_data[8], time_format)
+        time_irrelevance = (next_time - current_time) > tau
+
 
         train_data.append([u, lc, li, time_irrelevance])
         visits.add((u, lc, li))
@@ -98,12 +94,12 @@ def read_training_data():
 
 def get_locations():
     locations = {}
-    # print 'dafas'
+
     with open('./data/Foursquare_final.txt', 'r') as fread:
         lines = fread.readlines()
         for line in lines:
             temp = line.strip().split('\t')
-            l = int(temp[1]) - 1
+            l = int(temp[1])
             locations[l] = [float(temp[3]), float(temp[4])]
             # print l, locations[l]
     return locations
