@@ -1,5 +1,6 @@
 import time
 
+n_users = int(354)
 
 def calculate(topk):
     # read list
@@ -52,8 +53,7 @@ def calculate(topk):
 
         with open('./result/next_acc.txt', 'a+') as fwrite:
             fwrite.write('top'+str(K)+'\taccuracy: '+str(accuracy) \
-                +'\tprecision: '+str(precision)+ \
-                '\trecall: '+str(recall)+'\n')
+                + str(recall)+'\n')
 
 
 def precision_recall(testData, topData, K):
@@ -63,7 +63,7 @@ def precision_recall(testData, topData, K):
         precision += (1.0 * len(intsec)) / (1.0 * K)
         recall += (1.0 * len(intsec)) / (1.0 * len(each_test))
         # print len(intsec)
-    return precision / 2363, recall / 2363
+    return precision / n_users, recall / n_users
 
 def next_acc(testData, topData):
     acc = 0.0
@@ -74,8 +74,25 @@ def next_acc(testData, topData):
                 sum += 1.0
         acc += sum / (1.0 * len(each_test))
         sum = 0.0
-    return acc / 2363
+    return acc / n_users
 
+# def mean_average_precision(testData, topData, K):
+#     i = 1
+#     total = len(topData)
+#     p = float(0.0)
+#     hit_num = int(0)
+#     sorted_pred_rank = sorted(topData.items(), key=lambda x:x[1],reverse=True)
+#     for v_i in sorted_pred_rank:
+#         if i<K+1:
+#             if v_i[0] in testData:
+#                 hit_num += 1
+#                 p += float(hit_num / i)
+#             else:
+#                 break
+#             i += 1
+#         if i!= 1:
+#             return hit_num / (i-1),p/total
+#         return 0,0
 
 def main():
     topk = [1,5,10,15,20]
