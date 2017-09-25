@@ -11,7 +11,7 @@ user_set = set()
 poi_set = set()
 time_dict = {}
 
-with open('./data/Foursquare_final.txt','rb') as fread:
+with open('./data/foursquare.txt','rb') as fread:
 	lines = fread.readlines()
 	for i in range(len(lines)):
 		temp = lines[i].strip().split('\t')
