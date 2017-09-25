@@ -86,7 +86,7 @@ void getTest(){
 			count = 0;
 		}
 	}
-	countPushback(vecucount, 606, 46);
+	countPushback(vecucount, 353, 14);
 	cout << "each user checkin nums save ok...." << endl;
 	
 	vector<Data> vecTest;
