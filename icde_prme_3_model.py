@@ -42,8 +42,8 @@ file_suffix = ".txt"
 
 time_format = "%Y-%m-%d %H:%M:%S"
 
-user_num = 762
-poi_num = 2058
+user_num = 354
+poi_num = 1358
 
 K = 60            # latent dimensionality /  the number of dimensions
 tau = 3600 * 12    # time difference threshold
@@ -95,7 +95,7 @@ def read_training_data():
 def get_locations():
     locations = {}
 
-    with open('./data/Foursquare_final.txt', 'r') as fread:
+    with open('./data/foursquare.txt', 'r') as fread:
         lines = fread.readlines()
         for line in lines:
             temp = line.strip().split('\t')
