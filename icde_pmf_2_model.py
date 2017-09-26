@@ -218,16 +218,34 @@ class ExplicitMF:
                 print('Test mse: ' + str(self.test_mse[-1]))
             iter_diff = n_iter
         print predictions.shape
-        topk = {1,5,10,15,20}
+
+        topk = [1,5,10,15,20]
         for K in topk:
             print 'top %d\t' % K
             MAP = mean_average_precision(predictions,test,K)
             print MAP
+            acc = next_acc(predictions,test,K)
+            print acc
 
+def next_acc(predictions,test,K):
+    n_users,n_items = predictions.shape
+    # print n_users
+    acc = float(0.0)
+    sum = float(0.0)
+    index_predictions = np.argsort(-predictions)
+    for i in range(n_users):
+        for j in range(K):
+            topk_intest_index = index_predictions[i][j]
+            if test[i][topk_intest_index] != 0:
+                sum += 1.0
+        acc += sum/(np.count_nonzero(test[i]))
+        sum = 0.0
+    # print acc
+    return acc / n_users
 
 def mean_average_precision(predictions,test,K):
     n_users,n_items = predictions.shape
-    sorted_predictions = -np.sort(-predictions,axis=1)
+    index_predictions = np.argsort(-predictions)
     ap = float(0.0)
     for i in range(n_users):
         sum = float(0.0)
@@ -235,7 +253,8 @@ def mean_average_precision(predictions,test,K):
         fenmu_count = int(0)
         for j in range(K):
             fenmu_count += 1
-            if test[i][j] != 0:
+            topk_intest_index = index_predictions[i][j]
+            if test[i][topk_intest_index] != 0:
                 fenzi_count += 1
                 sum += float(fenzi_count/fenmu_count)
         ap += float(sum/(np.count_nonzero(test[i])))
