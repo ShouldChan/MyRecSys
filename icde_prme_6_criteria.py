@@ -51,9 +51,14 @@ def calculate(topk):
         accuracy = next_acc(newTestData, newTopData)
         print "accuracy:  %f" % accuracy
 
-        with open('./result/next_acc.txt', 'a+') as fwrite:
-            fwrite.write('top'+str(K)+'\taccuracy: '+str(accuracy) \
-                + str(recall)+'\n')
+        MAP = mean_average_precision(newTestData,newTopData)
+        print 'MAP:  %f' % MAP
+        
+        # with open('./result/next_acc.txt', 'a+') as fwrite:
+        #     fwrite.write('top'+str(K)+'\taccuracy: '+str(accuracy) \
+        #         + str(recall)+'\n')
+        
+        
 
 
 def precision_recall(testData, topData, K):
@@ -76,40 +81,27 @@ def next_acc(testData, topData):
         sum = 0.0
     return acc / n_users
 
-# def mean_average_precision(testData, topData, K):
-#     i = 1
-#     total = len(topData)
-#     p = float(0.0)
-#     hit_num = int(0)
-#     sorted_pred_rank = sorted(topData.items(), key=lambda x:x[1],reverse=True)
-#     for v_i in sorted_pred_rank:
-#         if i<K+1:
-#             if v_i[0] in testData:
-#                 hit_num += 1
-#                 p += float(hit_num / i)
-#             else:
-#                 break
-#             i += 1
-#         if i!= 1:
-#             return hit_num / (i-1),p/total
-#         return 0,0
+def mean_average_precision(testData, topData):
+    print len(testData[1]), len(topData) # len(testData)==n_users
+    ap = float(0.0)
+    for i in range(len(topData)):
+        sum = float(0.0)
+        fenzi_count = int(0)
+        fenmu_count = int(0)
+        for j in topData[i]:
+            fenmu_count += 1
+            if j in testData[i]:
+                fenzi_count += 1
+                sum += float(fenzi_count/fenmu_count)
+        ap += float(sum/len(testData[i]))
+    MAP = float(ap/len(testData))
+    # print map
+    return MAP
 
 def main():
     topk = [1,5,10,15,20]
 
     calculate(topk)
-    # print "read elapsed:   %f" % (time.time() - t)
-    # precision, recall = precision_recall(testData, topData)
-    # print "calc elapsed:   %f" % (time.time() - t)
-
-    # print "precision:   %f" % precision
-    # print "recall:  %f" % recall
-
-    # accuracy = next_acc(testData, topData)
-    # print "accuracy:  %f" % accuracy
-
-    # with open('./result/next_acc.txt', 'a+') as fwrite:
-    #     fwrite.write(str(K)+'\t'+str(accuracy)+'\n')
 
 
 if __name__ == '__main__':
