@@ -218,25 +218,62 @@ class ExplicitMF:
                 print('Test mse: ' + str(self.test_mse[-1]))
             iter_diff = n_iter
         print predictions.shape
-        mean_average_precision(predictions,test_data_matrix,5)
+        topk = {1,5,10,15,20}
+        for K in topk:
+            print 'top %d\t' % K
+            MAP = mean_average_precision(predictions,test,K)
+            print MAP
 
-def mean_average_precision(predictions,test_data_matrix,K):
-    i = 1
-    total = len(predictions)
-    p = 0.0
-    hit_num = 0
-    sorted_pred_rank = sorted(predictions.items(),key=lambda x:x[1],reverse=True)
-    for v_i in sorted_pred_rank:
-        if i<K+1:
-            if v_i[0] in test_data_matrix:
-                hit_num += 1
-                p += hit_num / i
-            else:
-                break
-            i += 1
-        if i != 1:
-            return hit_num/(i-1),p/total
-        return 0,0
+
+def mean_average_precision(predictions,test,K):
+    n_users,n_items = predictions.shape
+    sorted_predictions = -np.sort(-predictions,axis=1)
+    ap = float(0.0)
+    for i in range(n_users):
+        sum = float(0.0)
+        fenzi_count = int(0)
+        fenmu_count = int(0)
+        for j in range(K):
+            fenmu_count += 1
+            if test[i][j] != 0:
+                fenzi_count += 1
+                sum += float(fenzi_count/fenmu_count)
+        ap += float(sum/(np.count_nonzero(test[i])))
+    MAP = float(ap/n_users)
+    return MAP
+
+# def precision_at_k(r,k):
+#     assert k >= 1
+#     r = np.asarray(r)[:k] != 0
+#     if r.size != k:
+#         raise ValueError('Relevance score length < k')
+#     return np.mean(r)
+
+# def average_precision(r):
+#     r = np.asarray(r) != 0
+#     out = [precision_at_k(r, k + 1) for k in range(r.size) if r[k]]
+#     if not out:
+#         return 0.
+#     return np.mean(out)
+
+# def mean_average_precision(rs):
+#     return np.mean([average_precision(rs) for r in rs])
+    # i = 1
+    # total = len(predictions)
+    # p = 0.0
+    # hit_num = 0
+    # sorted_pred_rank = sorted(predictions.items(),key=lambda x:x[1],reverse=True)
+    # for v_i in sorted_pred_rank:
+    #     if i<K+1:
+    #         if v_i[0] in test_data_matrix:
+    #             hit_num += 1
+    #             p += hit_num / i
+    #         else:
+    #             break
+    #         i += 1
+    #     if i != 1:
+    #         return hit_num/(i-1),p/total
+    #     return 0,0
 if __name__ == "__main__":
     # step1----------read train and test
     # count the checkins in each poi as rates
