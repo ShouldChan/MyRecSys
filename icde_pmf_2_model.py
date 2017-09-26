@@ -219,6 +219,7 @@ class ExplicitMF:
             iter_diff = n_iter
         print predictions.shape
 
+        fwrite = open('./acc_map_ndcg.txt','a+')
         topk = [1,5,10,15,20]
         for K in topk:
             print 'top %d\t' % K
@@ -226,6 +227,9 @@ class ExplicitMF:
             print MAP
             acc = next_acc(predictions,test,K)
             print acc
+            fwrite.write('top'+str(K)+'\tacc: '+ \
+                str(acc)+'\tMAP: '+str(MAP)+'\n')
+        fwrite.close()
 
 def next_acc(predictions,test,K):
     n_users,n_items = predictions.shape
@@ -296,8 +300,8 @@ def mean_average_precision(predictions,test,K):
 if __name__ == "__main__":
     # step1----------read train and test
     # count the checkins in each poi as rates
-    n_users = 354
-    n_items = 1358
+    n_users = 762
+    n_items = 2058
     train_data = np.zeros((n_users,n_items))
     
     with open('./foursquare_train.txt','rb') as fread:
@@ -354,7 +358,7 @@ if __name__ == "__main__":
     '''
     # step2-------------PMF
     MF_SGD = ExplicitMF(train_data_matrix, 40, learning = 'sgd', verbose = True)
-    iter_array = [1, 2]
+    iter_array = [1, 2, 5, 10, 15, 20]
     MF_SGD.calculate_learning_curve(iter_array, test_data_matrix, learning_rate=0.01)
 
     print(iter_array)
