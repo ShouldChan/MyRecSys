@@ -220,15 +220,17 @@ class ExplicitMF:
         print predictions.shape
 
         fwrite = open('./acc_map_ndcg.txt','a+')
-        topk = [1,5,10,15,20]
+        topk = [5,10,15,20]
         for K in topk:
             print 'top %d\t' % K
             MAP = mean_average_precision(predictions,test,K)
             print MAP
             acc = next_acc(predictions,test,K)
             print acc
-            fwrite.write('top'+str(K)+'\tacc: '+ \
-                str(acc)+'\tMAP: '+str(MAP)+'\n')
+            ndcg = getNDCG(predictions,test,K)
+            print ndcg
+            # fwrite.write('top'+str(K)+'\tacc: '+ \
+            #     str(acc)+'\tMAP: '+str(MAP)+'\n')
         fwrite.close()
 
 def next_acc(predictions,test,K):
@@ -265,38 +267,42 @@ def mean_average_precision(predictions,test,K):
     MAP = float(ap/n_users)
     return MAP
 
-# def precision_at_k(r,k):
-#     assert k >= 1
-#     r = np.asarray(r)[:k] != 0
-#     if r.size != k:
-#         raise ValueError('Relevance score length < k')
-#     return np.mean(r)
+def getDCG(rels):
+    dcg = rels[0]
+    i = 2
+    for rel in rels[1:]:
+        dcg = dcg + pow(2,rel) / math.log(i,2)
+        i += 1
+    return dcg
 
-# def average_precision(r):
-#     r = np.asarray(r) != 0
-#     out = [precision_at_k(r, k + 1) for k in range(r.size) if r[k]]
-#     if not out:
-#         return 0.
-#     return np.mean(out)
+def getIDCG(rels):
+    rels.sort()
+    rels.reverse()
+    return getDCG(rels)
 
-# def mean_average_precision(rs):
-#     return np.mean([average_precision(rs) for r in rs])
-    # i = 1
-    # total = len(predictions)
-    # p = 0.0
-    # hit_num = 0
-    # sorted_pred_rank = sorted(predictions.items(),key=lambda x:x[1],reverse=True)
-    # for v_i in sorted_pred_rank:
-    #     if i<K+1:
-    #         if v_i[0] in test_data_matrix:
-    #             hit_num += 1
-    #             p += hit_num / i
-    #         else:
-    #             break
-    #         i += 1
-    #     if i != 1:
-    #         return hit_num/(i-1),p/total
-    #     return 0,0
+def getNDCG(predictions,test,K):
+    # followed the loop, len(topdata[i]) is [1,5,10,15,20]
+    # objective: to mark each pid of topData[i](compared with corresponding testData) in three levels
+    # to perform the ranking criteria better
+    n_users,n_items = predictions.shape
+    index_predictions = np.argsort(-predictions)
+    scores = []
+    ndcg = 0.0
+    dcg = 0.0
+    idcg = 0.0
+    for i in range(n_users):
+        for j in range(K):
+            topk_intest_index = index_predictions[i][j]
+            if test[i][topk_intest_index] != 0:
+                scores.append(1)
+            else:
+                scores.append(0)
+        # print scores
+        dcg += getDCG(scores)
+        idcg += getIDCG(scores)
+        scores = []
+    ndcg = dcg/idcg
+    return ndcg
 if __name__ == "__main__":
     # step1----------read train and test
     # count the checkins in each poi as rates
