@@ -42,8 +42,8 @@ file_suffix = ".txt"
 
 time_format = "%Y-%m-%d %H:%M:%S"
 
-user_num = 354
-poi_num = 1358
+user_num = 2093
+poi_num = 3518
 
 K = 60            # latent dimensionality /  the number of dimensions
 tau = 3600 * 12    # time difference threshold
@@ -72,7 +72,7 @@ def read_training_data():
     visits = set()
     #locations = {}
 
-    train_data_file = open('./data/foursquare_train.txt', 'r')
+    train_data_file = open('./data/ca_train.txt', 'r')
     for eachline in train_data_file:
         raw_data = eachline.strip().split('\t')
         #print raw_data[0],"\t",raw_data[1],"\t",raw_data[4],"\t",raw_data[5]
@@ -95,7 +95,7 @@ def read_training_data():
 def get_locations():
     locations = {}
 
-    with open('./data/foursquare.txt', 'r') as fread:
+    with open('./data/new2_ca.txt', 'r') as fread:
         lines = fread.readlines()
         for line in lines:
             temp = line.strip().split('\t')
@@ -220,8 +220,8 @@ def main():
     learning(train_data, visits, locations, False)
     print "learning over...", time.time() - t
 
-    read_matrix(train_data, visits, locations)
-    print "make distance_list ok...Elapsed", time.time() - t
+    # read_matrix(train_data, visits, locations)
+    # print "make distance_list ok...Elapsed", time.time() - t
 
 
 if __name__ == '__main__':
