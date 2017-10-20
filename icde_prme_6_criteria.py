@@ -94,7 +94,16 @@ def getNDCG(testData, topData):
         scores = []
     ndcg = dcg/idcg
     return ndcg
-            
+
+def getHitRatio(testData, topData):
+    hr = []
+    for each_test, each_top in zip(testData, topData):
+        for i in each_test:
+            if i in each_top:
+                hr.append(1)
+                break
+    return float(len(hr)) / float(n_users)
+
 def precision_recall(testData, topData, K):
     precision, recall = 0.0, 0.0
     for each_test, each_top in zip(testData, topData):
