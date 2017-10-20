@@ -219,19 +219,33 @@ class ExplicitMF:
             iter_diff = n_iter
         print predictions.shape
 
-        fwrite = open('./acc_map_ndcg.txt','a+')
+        fwrite = open('./CA_acc_map_ndcg.txt','a+')
         topk = [5,10,15,20]
         for K in topk:
             print 'top %d\t' % K
-            MAP = mean_average_precision(predictions,test,K)
-            print MAP
+            # MAP = mean_average_precision(predictions,test,K)
+            # print MAP
             acc = next_acc(predictions,test,K)
             print acc
-            ndcg = getNDCG(predictions,test,K)
-            print ndcg
+            # ndcg = getNDCG(predictions,test,K)
+            # print ndcg
             # fwrite.write('top'+str(K)+'\tacc: '+ \
             #     str(acc)+'\tMAP: '+str(MAP)+'\n')
         fwrite.close()
+
+def getHitRatio(predictions,test,K):
+    n_users,n_items = predictions.shape
+    # print n_users
+    hr = []
+    
+    index_predictions = np.argsort(-predictions)
+    for i in range(n_users):
+        for j in range(K):
+            topk_intest_index = index_predictions[i][j]
+            if test[i][topk_intest_index] != 0:
+                hr.append(1)
+                break
+    return float(len(hr)) / float(n_users)
 
 def next_acc(predictions,test,K):
     n_users,n_items = predictions.shape
@@ -306,11 +320,11 @@ def getNDCG(predictions,test,K):
 if __name__ == "__main__":
     # step1----------read train and test
     # count the checkins in each poi as rates
-    n_users = 762
-    n_items = 2058
+    n_users = 2093
+    n_items = 3518
     train_data = np.zeros((n_users,n_items))
     
-    with open('./foursquare_train.txt','rb') as fread:
+    with open('./ca_train.txt','rb') as fread:
         lines = fread.readlines()
         for line in lines:
             temp = line.strip().split('\t')
@@ -321,7 +335,7 @@ if __name__ == "__main__":
     train_data_matrix = train_data
 
     test_data = np.zeros((n_users,n_items))
-    with open('./foursquare_test.txt','rb') as fread:
+    with open('./ca_test.txt','rb') as fread:
         lines = fread.readlines()
         for line in lines:
             temp = line.strip().split('\t')
@@ -364,7 +378,7 @@ if __name__ == "__main__":
     '''
     # step2-------------PMF
     MF_SGD = ExplicitMF(train_data_matrix, 40, learning = 'sgd', verbose = True)
-    iter_array = [1, 2, 5, 10, 15, 20]
+    iter_array = [10]
     MF_SGD.calculate_learning_curve(iter_array, test_data_matrix, learning_rate=0.01)
 
     print(iter_array)
