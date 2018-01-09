@@ -1,11 +1,13 @@
 import time
 import math
 
-n_users = int(5073)
+dataset_name = "SIN"
+
+n_users = int(2321)
 
 def calculate(topk):
     # read list
-    with open('./result/test_list_prme.txt', "r") as f:
+    with open("./result/"+dataset_name+"/test_list_prme.txt", "r") as f:
         lines = f.readlines()
         testdata = []
         for line in lines:
@@ -16,10 +18,11 @@ def calculate(topk):
                     value.append(d.replace("\r\n", ""))
             testdata.append(value)
 
+    fw = open("./result/"+dataset_name+"/not_newpoi_criteria.txt","a+")
     for K in topk:
         K = int(K)
         print 'top %d\t'%K
-        with open('./result/top'+str(K)+'_prme.txt', "r") as f:
+        with open('./result/'+dataset_name+'/not_newpoi_top'+str(K)+'_prme.txt', "r") as f:
             lines = f.readlines()
             topdata = []
             for line in lines:
@@ -60,6 +63,10 @@ def calculate(topk):
         #         +'\tMAP: '+str(MAP)+'\n')
         ndcg = getNDCG(newTestData,newTopData)
         print 'ndcg: %f' % ndcg
+        fw.write('top'+str(K)+'\taccuracy: '+str(accuracy) \
+                +'\tMAP: '+str(MAP)+'\n')
+    fw.write("------------------"+str(dataset_name)+"-------------------\n")
+    fw.close()
 
 def getDCG(rels):
     dcg = rels[0]

@@ -6,8 +6,8 @@
 #include <map>
 using namespace std;
 
-#define test "./data/nextpoi_gowalla_test.txt"
-#define result "./result/test_list_prme.txt"
+#define test "./data/SIN/nextpoi_SIN_test.txt"
+#define result "./result/SIN/test_list_prme.txt"
 
 struct Data{
 	int user; int npoi;

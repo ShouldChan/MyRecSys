@@ -33,11 +33,12 @@ import operator
 
 from util import Util
 
-data_dir = "./data/"
-result_dir = "./result/"
-model_dir = "./model/"
+dataset_name = "SIN"
 
-file_suffix = ".txt"
+data_dir = "./data/"+dataset_name+"/"
+result_dir = "./result/"+dataset_name+"/"
+model_dir = "./model/"+dataset_name+"/"
+
 
 time_format = "%Y-%m-%d %H:%M:%S"
 
@@ -66,7 +67,7 @@ max_iters = 30   # max iterations
 def get_userpoiNum():
     user_set = set()
     poi_set = set()
-    with open(data_dir+"gowalla.txt",'r') as fread:
+    with open(data_dir+dataset_name+".txt",'r') as fread:
         lines = fread.readlines()
         for line in lines:
             temp = line.strip().split('\t')
@@ -80,7 +81,7 @@ def get_userpoiNum():
 def get_locations():
     locations = {}
 
-    with open(data_dir+"gowalla_poiset.txt",'r') as fr:
+    with open(data_dir+dataset_name+"_poiset.txt",'r') as fr:
         lines = fr.readlines()
         for line in lines:
             temp = line.strip().split('\t')
@@ -95,7 +96,7 @@ def read_training_data():
     train_data = []
     visits = set()
 
-    with open(data_dir+"nextpoi_gowalla_train.txt",'r') as fr:
+    with open(data_dir+"nextpoi_"+dataset_name+"_train.txt",'r') as fr:
         lines = fr.readlines()
         for line in lines:
             temp = line.strip().split('\t')

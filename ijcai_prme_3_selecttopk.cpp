@@ -6,8 +6,8 @@
 #include <map>
 using namespace std;
 
-#define list "./result/dist_list_prme.txt"
-#define result "./result/top1_prme.txt"
+#define list "./result/SIN/not_newpoi_dist_list_prme.txt"
+#define result "./result/SIN/not_newpoi_top1_prme.txt"
 #define K 1
 struct Data{
 	int user;	int poi;		double value;
