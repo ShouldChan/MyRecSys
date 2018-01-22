@@ -131,22 +131,51 @@ def next_acc(testData, topData):
         sum = 0.0
     return acc / n_users
 
+# AP = (Summation_j=1^ni * P(j) * y_(i,j)) / (Summation_j=1^ni y_(i,j))
+# mAP = Summation AP / m
+# P(j) = (Summation hitnumber) / j's ranking position
 def mean_average_precision(testData, topData):
-    # print len(testData[1]), len(topData) # len(testData)==n_users
-    ap = float(0.0)
-    for i in range(len(topData)):
-        sum = float(0.0)
-        fenzi_count = int(0)
-        fenmu_count = int(0)
+    sum_ap = float(0.0)
+    for i in range(0,len(testData)):
+        # print "Round\t%d"%i
+        ap = float(0.0)
+        p_j = float(0.0)
+        sum_p_j_y_ij = float(0.0)
+        sum_y_ij = float(0.0)
+        hit_number = int(0)
+        rank_position = int(0)
+        count_relevant = int(0)
+        flag_relevant = int(0)
         for j in topData[i]:
-            fenmu_count += 1
+            rank_position += 1
+            # print "rank_position\t%d"%rank_position
             if j in testData[i]:
-                fenzi_count += 1
-                sum += float(fenzi_count/fenmu_count)
-        ap += float(sum/len(testData[i]))
-    MAP = float(ap/len(testData))
-    # print map
+                hit_number += 1
+                flag_relevant = 1
+                p_j = float(hit_number) / float(rank_position)
+                # print "hit_number\t%d"%hit_number
+                # print "p_j\t%f"%p_j
+                count_relevant += 1
+            else:
+                p_j = 0.0
+                flag_relevant = 0
+                # print "hit_number\t%d"%hit_number
+                # print "p_j\t%f"%p_j
+            sum_p_j_y_ij += (float(p_j) * flag_relevant)
+            sum_y_ij = float(count_relevant)
+            # print sum_p_j_y_ij
+            # print sum_y_ij
+        if sum_y_ij == 0.0:
+            ap += 0.0
+        else:
+            ap += sum_p_j_y_ij / sum_y_ij
+        sum_ap += ap
+        # print "ap\t%f"%ap
+    # print "m\t%d"%len(testlist)
+    MAP = float(sum_ap/len(testlist))
+    # print "MAP\t%f"%MAP
     return MAP
+
 
 def main():
     topk = [1,5,10,15,20]
