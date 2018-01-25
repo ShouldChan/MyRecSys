@@ -1,9 +1,9 @@
 import time
 import math
 
-dataset_name = "SIN"
+dataset_name = "brightkite"
 
-n_users = int(2321)
+n_users = int(1850)
 
 def calculate(topk):
     # read list
@@ -135,6 +135,8 @@ def next_acc(testData, topData):
 # mAP = Summation AP / m
 # P(j) = (Summation hitnumber) / j's ranking position
 def mean_average_precision(testData, topData):
+    print(len(testData))
+    print(len(topData))
     sum_ap = float(0.0)
     for i in range(0,len(testData)):
         # print "Round\t%d"%i
@@ -172,7 +174,7 @@ def mean_average_precision(testData, topData):
         sum_ap += ap
         # print "ap\t%f"%ap
     # print "m\t%d"%len(testlist)
-    MAP = float(sum_ap/len(testlist))
+    MAP = float(sum_ap/len(testData))
     # print "MAP\t%f"%MAP
     return MAP
 
